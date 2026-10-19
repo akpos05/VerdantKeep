@@ -419,6 +419,7 @@ const Game = {
   update() {
     this.time++;
     this.stateTime++;
+    if (this.fadeIn > 0) this.fadeIn = Math.max(0, this.fadeIn - 0.04);
     if (Input.pressed('start') || Input.pressed('jump') || Input.pressed('attack')) Sound.init();
 
     switch (this.state) {
@@ -671,10 +672,7 @@ const Game = {
       const k = this.respawnTimer > 25 ? (50 - this.respawnTimer) / 25 : this.respawnTimer / 25;
       Renderer.fade(k);
     }
-    if (this.fadeIn > 0) {
-      Renderer.fade(this.fadeIn);
-      this.fadeIn = Math.max(0, this.fadeIn - 0.04);
-    }
+    Renderer.fade(this.fadeIn);
     Renderer.present();
   },
 

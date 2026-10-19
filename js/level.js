@@ -287,7 +287,7 @@ class Level {
     this.spawn('checkpoint', 97, 20);
     this.spawn('slime', 77, 20);
     this.spawn('skeleton', 86, 20);
-    this.spawn('wisp', 95, 13);
+    this.spawn('wisp', 110, 12); // kept clear of the checkpoint so respawns are safe
     this.spawn('skeleton', 102, 20);
     this.spawn('skeleton', 116, 20);
     this.gems([

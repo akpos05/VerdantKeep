@@ -89,6 +89,10 @@ class Player {
     return this.x + this.w / 2;
   }
 
+  get cy() {
+    return this.y + this.h / 2;
+  }
+
   get bottom() {
     return this.y + this.h;
   }

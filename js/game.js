@@ -152,7 +152,8 @@ class Goal {
   update(game) {
     this.t++;
     const p = game.player;
-    if (!this.reached && !p.dead && Math.abs(p.cx - this.x) < 18 && p.bottom > this.y - 40) {
+    const onLevel = p.bottom > this.y - 40 && p.bottom <= this.y + 2; // not from the hall below
+    if (!this.reached && !p.dead && Math.abs(p.cx - this.x) < 18 && onLevel) {
       this.reached = true;
       game.reachGoal(this);
     }

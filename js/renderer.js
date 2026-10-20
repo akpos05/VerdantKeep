@@ -1,6 +1,7 @@
 // Everything visual: a 320x180 back buffer scaled up by whole numbers to the
 // window, procedurally generated sprites and tiles, parallax, lighting, the
-// pixel font and the HUD. No image files are used anywhere.
+// pixel font and the HUD. Image files are optional overrides: if one is
+// missing, the code-drawn version is used.
 const VIEW_W = 320;
 const VIEW_H = 180;
 
@@ -137,6 +138,7 @@ const Renderer = (() => {
     runA: ['....kBBkBBk.....', '...kbbk.kbbk....', '..kbbk...kbbk...', '..kkk.....kkk...'],
     runB: ['....kBBBBk......', '.....kbbk.......', '.....kbbk.......', '.....kkkk.......'],
     runC: ['....kBBkBBk.....', '....kbbkbbk.....', '...kbbk.kbbk....', '...kkk...kkk....'],
+    runD: ['....kBBBBk......', '.....kbbk.......', '.....kbbk.......', '.....kkkk.......'],
     jump: ['....kBBkBBk.....', '....kbbkbbk.....', '....kkk.kkk.....', '................'],
     fall: ['....kBBkBBk.....', '...kbbk.kbbk....', '...kbk...kbk....', '...kk.....kk....'],
   };
@@ -145,6 +147,22 @@ const Renderer = (() => {
     playerFrames[name] = sprite(fromGrid(P_TOP.concat(P_LEGS[name]), PLAYER_PAL));
     playerFrames[name + 'Atk'] = sprite(fromGrid(P_TOP_ATTACK.concat(P_LEGS[name]), PLAYER_PAL));
   }
+
+  // Optional painted walk cycle: a 64x16 sheet of four 16x16 frames. It
+  // replaces runA-runD (and their attack variants; the sword is drawn on top
+  // separately). If the file is missing or the wrong size, the code-drawn
+  // frames above stay in use.
+  const HERO_WALK = ['runA', 'runB', 'runC', 'runD'];
+  const heroWalk = new Image();
+  heroWalk.onload = () => {
+    if (heroWalk.width !== 64 || heroWalk.height !== 16) return;
+    HERO_WALK.forEach((name, i) => {
+      const [c, x] = makeCanvas(16, 16);
+      x.drawImage(heroWalk, i * 16, 0, 16, 16, 0, 0, 16, 16);
+      playerFrames[name] = playerFrames[name + 'Atk'] = sprite(c);
+    });
+  };
+  heroWalk.src = 'assets/hero_walk.png';
 
   // The sword, drawn at a few angles with a pixel line so it stays crisp.
   function bladeSprite(angle) {

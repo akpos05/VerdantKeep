@@ -316,14 +316,14 @@ class Player {
     for (let i = 0; i < len; i++) {
       const tx = cx - this.facing * (5 + i);
       const ty = bottom - 9 + Math.round(Math.sin(time * 0.35 - i * 0.9) * (0.4 + i * 0.3)) + (i >> 1);
-      ctx.fillStyle = i === len - 1 ? '#24452f' : '#3f7a52';
+      ctx.fillStyle = i === len - 1 ? '#9a451c' : '#d8742a';
       ctx.fillRect(Math.round(tx), Math.round(ty), 1, 3 - (i >> 1));
     }
 
     // Pick a frame.
     let legs;
     if (!this.grounded) legs = this.vy < 0 ? 'jump' : 'fall';
-    else if (Math.abs(this.vx) > 0.25) legs = ['runA', 'runB', 'runC', 'runB'][Math.floor(this.animDist / 8) % 4];
+    else if (Math.abs(this.vx) > 0.25) legs = ['runA', 'runB', 'runC', 'runD'][Math.floor(this.animDist / 8) % 4];
     else legs = 'idle';
     const attacking = this.attackTimer > 0;
     const frame = S.player[legs + (attacking ? 'Atk' : '')];

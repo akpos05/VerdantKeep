@@ -4,6 +4,8 @@ Hello, world
 # The is a second header 
 Hello, again
 
+A second commit
+
 # Emberfall
 
 A 16-bit fantasy side-scroller in vanilla JavaScript and HTML5 Canvas. No build

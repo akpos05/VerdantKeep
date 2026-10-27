@@ -1239,7 +1239,7 @@ const Renderer = (() => {
   }
 
   function drawHUD(state) {
-    const { hp, maxHp, gems, totalGems, relic: hasRelic, muted, time, hurtFlash, gemPulse } = state;
+    const { hp, maxHp, gems, totalGems, relic: hasRelic, muted, time, hurtFlash, gemPulse, score, scorePulse } = state;
     for (let i = 0; i < maxHp; i++) {
       const full = i < hp;
       // The last remaining heart beats when health is low.
@@ -1259,6 +1259,10 @@ const Renderer = (() => {
       ctx.drawImage(relic, VIEW_W - 18, 5);
     }
     if (muted) text('MUTE', VIEW_W - (hasRelic ? 22 : 6), 7, { align: 'right', color: '#8a7aa0' });
+    // Score sits under the relic/mute row, right-aligned.
+    text('SCORE ' + String(score).padStart(3, '0'), VIEW_W - 6, gy + 1, {
+      align: 'right', color: scorePulse > 0 ? PAL.gold3 : PAL.white,
+    });
   }
 
   function clear(color = '#000') {

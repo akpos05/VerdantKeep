@@ -234,11 +234,13 @@ const Game = {
     this.hasRelic = false;
     this.deaths = 0;
     this.kills = 0;
+    this.score = 0;
     this.playTime = 0;
     this.freeze = 0;
     this.shakeMag = 0;
     this.hurtFlash = 0;
     this.gemPulse = 0;
+    this.scorePulse = 0;
     this.fakeAlpha = 1;
     this.messages = [];
     this.respawnTimer = 0;
@@ -305,6 +307,8 @@ const Game = {
 
   onEnemyKilled(e) {
     this.kills++;
+    this.score++; // one point per enemy defeated
+    this.scorePulse = 1;
     if (this.player.hp < PLAYER.MAX_HP && Math.random() < 0.22) {
       const h = new HeartPickup(e.cx, e.cy);
       h.dropped = true;
@@ -498,6 +502,7 @@ const Game = {
     if (this.shakeMag > 0) this.shakeMag = this.shakeMag < 0.3 ? 0 : this.shakeMag * 0.86;
     if (this.hurtFlash > 0) this.hurtFlash = Math.max(0, this.hurtFlash - 0.06);
     if (this.gemPulse > 0) this.gemPulse = Math.max(0, this.gemPulse - 0.08);
+    if (this.scorePulse > 0) this.scorePulse = Math.max(0, this.scorePulse - 0.08);
     for (const m of this.messages) m.t++;
     this.messages = this.messages.filter((m) => m.t < m.frames);
 
@@ -732,6 +737,8 @@ const Game = {
       time: this.time,
       hurtFlash: this.hurtFlash,
       gemPulse: this.gemPulse,
+      score: this.score,
+      scorePulse: this.scorePulse,
     });
     for (const m of this.messages) {
       const inA = Math.min(1, m.t / 15);
@@ -773,6 +780,7 @@ const Game = {
     const k = Math.min(1, this.stateTime / 40);
     Renderer.fade(0.7 * k, '20,4,10');
     Renderer.text('YOU HAVE FALLEN', VIEW_W / 2, 62, { align: 'center', scale: 2, color: PAL.crimson2, under: PAL.crimson1, alpha: k });
+    Renderer.text('SCORE ' + this.score, VIEW_W / 2, 80, { align: 'center', color: PAL.gold2, alpha: k });
     Renderer.text('GEMS ' + this.gems + '/' + this.totalGems + '   FOES SLAIN ' + this.kills, VIEW_W / 2, 92, {
       align: 'center', color: '#c0a0b0', alpha: k,
     });
@@ -789,6 +797,7 @@ const Game = {
     const secs = Math.floor(this.playTime / 60);
     const time = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
     const rows = [
+      ['SCORE', String(this.score)],
       ['GEMS', this.gems + '/' + this.totalGems],
       ['RELIC', this.hasRelic ? 'FOUND' : 'HIDDEN STILL...'],
       ['FOES SLAIN', String(this.kills)],
@@ -800,7 +809,7 @@ const Game = {
       Renderer.text(b, VIEW_W / 2 + 70, 74 + i * 11, { align: 'right', color: PAL.white, alpha: k });
     });
     if (this.stateTime > 90 && Math.floor(this.time / 30) % 2 === 0) {
-      Renderer.text('PRESS ENTER TO PLAY AGAIN', VIEW_W / 2, 140, { align: 'center' });
+      Renderer.text('PRESS ENTER TO PLAY AGAIN', VIEW_W / 2, 152, { align: 'center' });
     }
   },
 };

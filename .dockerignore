@@ -1,0 +1,8 @@
+.env
+.env.*
+.git
+.gitignore
+CodeSamples
+Dockerfile
+.dockerignore
+README.md

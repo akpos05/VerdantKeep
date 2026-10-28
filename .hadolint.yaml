@@ -1,0 +1,4 @@
+failure-threshold: warning
+ignored:
+  # FROM --platform=linux/amd64 is intentional: the image only ships to AMD64 hosts.
+  - DL3029

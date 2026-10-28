@@ -1,0 +1,15 @@
+{
+  "name": "emberfall",
+  "private": true,
+  "description": "CI tooling only. The game itself has no dependencies and no build step.",
+  "scripts": {
+    "lint": "eslint js/",
+    "check:refs": "node ci/check-references.mjs",
+    "test:static": "npm run lint && npm run check:refs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "globals": "17.13.0"
+  }
+}

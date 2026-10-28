@@ -6,3 +6,12 @@ CodeSamples
 Dockerfile
 .dockerignore
 README.md
+Jenkinsfile
+.hadolint.yaml
+eslint.config.js
+package.json
+package-lock.json
+node_modules
+ci
+reports
+*.tar

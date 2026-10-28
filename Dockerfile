@@ -1,7 +1,7 @@
 # Emberfall: static HTML5 game served by nginx.
 # Pinned to linux/amd64 because the image ships to AMD64 hosts; this holds
 # even when building on an ARM machine (e.g. Apple Silicon).
-FROM --platform=linux/amd64 nginx:1.27-alpine
+FROM --platform=linux/amd64 nginx:1.30-alpine
 
 # Replace the default site with the game. Only game files are copied, so
 # .env, CodeSamples/ and .git never end up in the image.

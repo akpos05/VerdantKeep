@@ -199,6 +199,11 @@ pipeline {
                                 sed "s|image: $IMAGE_NAME:latest|image: $IMAGE_REF|" k8s/deployment.yaml > reports/deployment.yaml
                                 grep -q "image: $IMAGE_REF" reports/deployment.yaml
 
+                                # Cluster admin credentials can create the namespace. The restricted
+                                # jenkins-deployer account can't, and relies on it existing already.
+                                if kubectl auth can-i create namespaces > /dev/null 2>&1; then
+                                    kubectl apply -f k8s/namespace.yaml
+                                fi
                                 kubectl apply -f k8s/service.yaml -f reports/deployment.yaml
                                 if ! kubectl -n "$K8S_NAMESPACE" rollout status deployment/emberfall --timeout=180s; then
                                     kubectl -n "$K8S_NAMESPACE" get pods -l app=emberfall -o wide

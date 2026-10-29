@@ -1,0 +1,11 @@
+# The namespace the game runs in. Jenkins creates it when its credential is
+# allowed to (cluster admin). The restricted jenkins-deployer account isn't,
+# so with that account apply this file once by hand (see k8s/bootstrap).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: emberfall
+  labels:
+    # Rejects privileged pods, host mounts and host networking in this namespace,
+    # which limits what a leaked Jenkins token could do.
+    pod-security.kubernetes.io/enforce: baseline

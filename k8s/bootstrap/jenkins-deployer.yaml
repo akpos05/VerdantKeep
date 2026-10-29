@@ -1,22 +1,15 @@
 # One-time setup, applied by a cluster admin on the MicroK8s machine, not by Jenkins:
 #
-#   microk8s kubectl apply -f k8s/bootstrap/jenkins-deployer.yaml
+#   microk8s kubectl apply -f k8s/namespace.yaml -f k8s/bootstrap/jenkins-deployer.yaml
 #   (umask 077; sh k8s/bootstrap/jenkins-kubeconfig.sh > ~/jenkins-microk8s.kubeconfig)
 #
 # Then upload that file to Jenkins as a "Secret file" credential with the ID
 # microk8s-kubeconfig, and delete the local copy.
 #
 # Jenkins gets a service account that can only manage the game inside the
-# emberfall namespace, instead of the cluster admin credentials.
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: emberfall
-  labels:
-    # Rejects privileged pods, host mounts and host networking in this namespace,
-    # which limits what a leaked Jenkins token could do.
-    pod-security.kubernetes.io/enforce: baseline
----
+# emberfall namespace, instead of the cluster admin credentials. The limits
+# only apply with RBAC on: MicroK8s ships with it off, which lets any account
+# do anything. Turn it on with `microk8s enable rbac`.
 apiVersion: v1
 kind: ServiceAccount
 metadata:

@@ -3,9 +3,14 @@
 # even when building on an ARM machine (e.g. Apple Silicon).
 FROM --platform=linux/amd64 nginx:1.30-alpine
 
-# Replace the default site with the game. Only game files are copied, so
-# .env, CodeSamples/ and .git never end up in the image.
-RUN rm -rf /usr/share/nginx/html/*
+# Install Alpine security fixes that are newer than the nginx base image, so
+# a slow upstream rebuild doesn't hold releases at the Trivy gate, and clear
+# the default site.
+RUN apk upgrade --no-cache \
+    && rm -rf /usr/share/nginx/html/*
+
+# Only game files are copied, so .env, CodeSamples/ and .git never end up in
+# the image.
 COPY index.html /usr/share/nginx/html/
 COPY js/ /usr/share/nginx/html/js/
 COPY assets/ /usr/share/nginx/html/assets/

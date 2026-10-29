@@ -1,0 +1,80 @@
+# One-time setup, applied by a cluster admin on the MicroK8s machine, not by Jenkins:
+#
+#   microk8s kubectl apply -f k8s/bootstrap/jenkins-deployer.yaml
+#   (umask 077; sh k8s/bootstrap/jenkins-kubeconfig.sh > ~/jenkins-microk8s.kubeconfig)
+#
+# Then upload that file to Jenkins as a "Secret file" credential with the ID
+# microk8s-kubeconfig, and delete the local copy.
+#
+# Jenkins gets a service account that can only manage the game inside the
+# emberfall namespace, instead of the cluster admin credentials.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: emberfall
+  labels:
+    # Rejects privileged pods, host mounts and host networking in this namespace,
+    # which limits what a leaked Jenkins token could do.
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins-deployer
+  namespace: emberfall
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jenkins-deployer
+  namespace: emberfall
+rules:
+  # kubectl apply, rollout status and rollout undo
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  # The smoke test runs a short-lived pod and reads its output.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/attach"]
+    verbs: ["get", "create"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  # Troubleshooting output when a rollout fails
+  - apiGroups: ["", "events.k8s.io"]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-deployer
+  namespace: emberfall
+subjects:
+  - kind: ServiceAccount
+    name: jenkins-deployer
+    namespace: emberfall
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jenkins-deployer
+---
+# Long-lived token for the service account. Kubernetes fills in the token;
+# jenkins-kubeconfig.sh reads it from here.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jenkins-deployer-token
+  namespace: emberfall
+  annotations:
+    kubernetes.io/service-account.name: jenkins-deployer
+type: kubernetes.io/service-account-token

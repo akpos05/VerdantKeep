@@ -1,0 +1,52 @@
+# Emberfall on MicroK8s. The Jenkins "Deploy to MicroK8s" stage replaces the
+# image below with the exact digest it scanned and pushed, so applying this
+# file by hand runs :latest, while Jenkins runs a pinned build.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emberfall
+  namespace: emberfall
+  labels:
+    app: emberfall
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: emberfall
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Start a new pod before stopping an old one, so the game never goes down.
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: emberfall
+    spec:
+      # The game never calls the Kubernetes API.
+      automountServiceAccountToken: false
+      containers:
+        - name: emberfall
+          image: akpos05/embers:latest
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi

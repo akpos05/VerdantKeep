@@ -15,3 +15,4 @@ node_modules
 ci
 reports
 *.tar
+k8s

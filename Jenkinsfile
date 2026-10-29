@@ -229,10 +229,27 @@ pipeline {
                         withCredentials([file(credentialsId: 'microk8s-kubeconfig', variable: 'KUBECONFIG')]) {
                             // Fetches the game through its Service from inside the cluster, using
                             // the image that was just deployed (already on the node, so no extra pull).
+                            // The result comes from the pod's status, which the API server holds,
+                            // not from its output, which has to be fetched from the node's kubelet.
                             sh '''
-                                kubectl -n "$K8S_NAMESPACE" run "smoke-$BUILD_NUMBER" --rm --attach --restart=Never \
+                                pod="smoke-$BUILD_NUMBER"
+                                trap 'kubectl -n "$K8S_NAMESPACE" delete pod "$pod" --ignore-not-found --wait=false' EXIT
+                                kubectl -n "$K8S_NAMESPACE" run "$pod" --restart=Never \
                                     --image="$IMAGE_REF" --command -- sh -c \
                                     'wget -q -O - http://emberfall/ | grep -q "<title>Emberfall</title>" && wget -q -O /dev/null http://emberfall/js/game.js'
+
+                                phase=''
+                                for _ in $(seq 1 30); do
+                                    phase=$(kubectl -n "$K8S_NAMESPACE" get pod "$pod" -o jsonpath='{.status.phase}' || true)
+                                    case "$phase" in Succeeded|Failed) break ;; esac
+                                    sleep 2
+                                done
+                                echo "Smoke test pod: ${phase:-no status}"
+                                if [ "$phase" != Succeeded ]; then
+                                    # Best effort: the kubelet serves pod logs, and it may not be reachable.
+                                    kubectl -n "$K8S_NAMESPACE" logs "$pod" || true
+                                    exit 1
+                                fi
                             '''
                         }
                     }

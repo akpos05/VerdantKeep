@@ -32,13 +32,11 @@ rules:
   - apiGroups: [""]
     resources: ["services"]
     verbs: ["get", "list", "watch", "create", "update", "patch"]
-  # The smoke test runs a short-lived pod and reads its output.
+  # The smoke test runs a short-lived pod, checks its status and, if it
+  # fails, reads its logs.
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["get", "list", "watch", "create", "delete"]
-  - apiGroups: [""]
-    resources: ["pods/attach"]
-    verbs: ["get", "create"]
   - apiGroups: [""]
     resources: ["pods/log"]
     verbs: ["get"]
